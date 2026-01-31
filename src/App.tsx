@@ -23,10 +23,12 @@ const getUserById = (users: User[], userId: number): User => {
 export const App: React.FC = () => {
   const users = usersFromServer as User[];
 
-  const initialTodos: Todo[] = (todosFromServer as TodoFromServer[]).map(todo => ({
-    ...todo,
-    user: getUserById(users, todo.userId),
-  }));
+  const initialTodos: Todo[] = (todosFromServer as TodoFromServer[]).map(
+    todo => ({
+      ...todo,
+      user: getUserById(users, todo.userId),
+    }),
+  );
 
   const [todos, setTodos] = useState<Todo[]>(initialTodos);
 
@@ -38,11 +40,15 @@ export const App: React.FC = () => {
 
   const nextId = useMemo(() => {
     const maxId = todos.reduce((max, todo) => Math.max(max, todo.id), 0);
+
     return maxId + 1;
   }, [todos]);
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const cleaned = event.target.value.replace(/[^0-9a-zA-Z\u0400-\u04FF ]/g, '');
+    const cleaned = event.target.value.replace(
+      /[^0-9a-zA-Z\u0400-\u04FF ]/g,
+      '',
+    );
 
     setTitle(cleaned);
 
