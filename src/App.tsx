@@ -5,29 +5,11 @@ import usersFromServer from './api/users';
 import todosFromServer from './api/todos';
 import { TodoList } from './components/TodoList/TodoList';
 
-type User = {
-  id: number;
-  name: string;
-  username: string;
-  email: string;
-};
-
-type TodoFromServer = {
-  id: number;
-  title: string;
-  completed: boolean;
-  userId: number;
-};
-
-type Todo = TodoFromServer & {
-  user: User;
-};
+import type { Todo, TodoFromServer, User } from './types';
 
 const getUserById = (users: User[], userId: number): User => {
-  const found = users.find(u => u.id === userId);
+  const found = users.find(user => user.id === userId);
 
-  // w tym zadaniu userId zawsze powinien istnieć w users,
-  // ale zostawiamy bezpieczny fallback
   return (
     found || {
       id: 0,
@@ -40,7 +22,8 @@ const getUserById = (users: User[], userId: number): User => {
 
 export const App: React.FC = () => {
   const users = usersFromServer as User[];
-  const initialTodos = (todosFromServer as TodoFromServer[]).map(todo => ({
+
+  const initialTodos: Todo[] = (todosFromServer as TodoFromServer[]).map(todo => ({
     ...todo,
     user: getUserById(users, todo.userId),
   }));
@@ -59,7 +42,6 @@ export const App: React.FC = () => {
   }, [todos]);
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    // Optional: tylko litery UA+EN, cyfry i spacje
     const cleaned = event.target.value.replace(/[^0-9a-zA-Z\u0400-\u04FF ]/g, '');
 
     setTitle(cleaned);
@@ -81,7 +63,7 @@ export const App: React.FC = () => {
     event.preventDefault();
 
     const normalizedTitle = title.trim();
-    const selectedUser = users.find(u => u.id === userId) || null;
+    const selectedUser = users.find(user => user.id === userId) || null;
 
     const hasTitleError = normalizedTitle.length === 0;
     const hasUserError = selectedUser === null;
@@ -103,7 +85,6 @@ export const App: React.FC = () => {
 
     setTodos(prev => [...prev, newTodo]);
 
-    // clear form
     setTitle('');
     setUserId(0);
     setTitleError(false);
